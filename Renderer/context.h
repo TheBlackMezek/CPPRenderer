@@ -10,4 +10,6 @@ public:
 	void term();
 
 	bool shouldClose() const;
+
+	void clear();
 };

@@ -1,10 +1,12 @@
 #pragma once
 
 #include "glew/glew.h"
+#include "glm/vec4.hpp"
 
 struct vertex
 {
-	float pos[4];
+	//float pos[4];
+	glm::vec4 pos;
 };
 
 struct geometry
