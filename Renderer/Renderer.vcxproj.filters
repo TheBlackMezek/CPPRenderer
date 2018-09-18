@@ -40,5 +40,8 @@
     <Text Include="FragmentBasic.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="VertexMVP.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

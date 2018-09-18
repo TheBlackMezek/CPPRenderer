@@ -7,9 +7,12 @@
 #include <cstdio>
 #include <iostream>
 
+#include "glm/ext.hpp"
+#include "glm/mat4x4.hpp"
 
 
-void LoadShaderFiles(char** vert, char** frag);
+
+void LoadShaderFiles(const char* vertPath, const char* fragPath, char** vert, char** frag);
 
 
 
@@ -31,9 +34,13 @@ int main()
 	char* basicVert = nullptr;
 	char* basicFrag = nullptr;
 	
-	LoadShaderFiles(&basicVert, &basicFrag);
+	LoadShaderFiles("VertexMVP.txt", "FragmentBasic.txt", &basicVert, &basicFrag);
 
 	shader basicShad = makeShader(basicVert, basicFrag);
+
+	glm::mat4 cam_proj = glm::perspective(glm::radians(45.0f), 800.0f / 400.0f, 0.1f, 1000.0f);
+	glm::mat4 cam_view = glm::lookAt(glm::vec3(0, 0, -10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 triangle_model = glm::identity<glm::mat4>();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -42,6 +49,12 @@ int main()
 		game.tick();
 
 		game.clear();
+
+		triangle_model = glm::rotate(triangle_model, glm::radians(0.5f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		setUniform(basicShad, 0, cam_proj);
+		setUniform(basicShad, 1, cam_view);
+		setUniform(basicShad, 2, triangle_model);
 
 		draw(basicShad, triangle);
 	}
@@ -54,7 +67,7 @@ int main()
 	return 0;
 }
 
-void LoadShaderFiles(char** vert, char** frag)
+void LoadShaderFiles(const char* vertPath, const char* fragPath, char** vert, char** frag)
 {
 	int fileLength;
 	int lineBreakCount = 0;
@@ -65,7 +78,7 @@ void LoadShaderFiles(char** vert, char** frag)
 
 	std::ifstream in;
 
-	in.open("VertexBasic.txt");
+	in.open(vertPath);
 	in.seekg(0, in.end);
 	fileLength = in.tellg();
 	in.seekg(0, in.beg);
@@ -82,7 +95,7 @@ void LoadShaderFiles(char** vert, char** frag)
 	basicVert = new char[fileLength + 1];
 
 	in.close();
-	in.open("VertexBasic.txt");
+	in.open(vertPath);
 	in.seekg(0, in.beg);
 	in.read(basicVert, fileLength);
 	basicVert[fileLength] = '\0';
@@ -90,7 +103,7 @@ void LoadShaderFiles(char** vert, char** frag)
 
 	lineBreakCount = 0;
 
-	in.open("FragmentBasic.txt");
+	in.open(fragPath);
 	in.seekg(0, in.end);
 	fileLength = in.tellg();
 	in.seekg(0, in.beg);
@@ -105,7 +118,7 @@ void LoadShaderFiles(char** vert, char** frag)
 	basicFrag = new char[fileLength + 1];
 
 	in.close();
-	in.open("FragmentBasic.txt");
+	in.open(fragPath);
 	in.seekg(0, in.beg);
 	in.read(basicFrag, fileLength);
 	basicFrag[fileLength] = '\0';
