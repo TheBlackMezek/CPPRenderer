@@ -3,6 +3,11 @@
 //#include "glm/ext.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+
+
+
 geometry makeGeometry(vertex* verts, size_t vertCount,
 	unsigned int* indices, size_t indexCount)
 {
@@ -27,6 +32,8 @@ geometry makeGeometry(vertex* verts, size_t vertCount,
 	//describe vertex data
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)16);
 
 	//unbind buffers
 	glBindVertexArray(0);
@@ -83,6 +90,59 @@ void freeShader(shader& shad)
 	shad = {};
 }
 
+
+texture loadTexture(const char* imgPath)
+{
+	int imgWidth, imgHeight;
+	int imgFormat;
+	imgWidth = imgHeight = imgFormat = -1;
+
+	unsigned char* rawPixelData = nullptr;
+
+	//load image
+	//get format/spec
+	stbi_set_flip_vertically_on_load(true);
+	rawPixelData = stbi_load(imgPath, &imgWidth, &imgHeight, &imgFormat, STBI_default);
+
+	//pass to openGL
+	texture newTex = makeTexture(imgWidth, imgHeight, imgFormat, rawPixelData);
+
+	//destroy any other data
+	stbi_image_free(rawPixelData);
+
+	return newTex;
+}
+texture makeTexture(unsigned width, unsigned height, unsigned channels, const unsigned char* pixels)
+{
+	GLenum oglFormat = 0;
+	switch (channels)
+	{
+	case 1: oglFormat = GL_RED; break;
+	case 2: oglFormat = GL_RG; break;
+	case 3: oglFormat = GL_RGB; break;
+	case 4: oglFormat = GL_RGBA; break;
+	}
+
+	texture newTex = { 0, width, height, channels };
+
+	glGenTextures(1, &newTex.handle);
+	glBindTexture(GL_TEXTURE_2D, newTex.handle);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, oglFormat, width, height, 0, oglFormat, GL_UNSIGNED_BYTE, pixels);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return newTex;
+}
+void freeTexture(texture& tex)
+{
+	glDeleteTextures(1, &tex.handle);
+	tex = {};
+}
+
 void draw(const shader& shader, const geometry& geo)
 {
 	glUseProgram(shader.program);
@@ -94,4 +154,10 @@ void draw(const shader& shader, const geometry& geo)
 void setUniform(const shader& shad, GLuint location, const glm::mat4 value)
 {
 	glProgramUniformMatrix4fv(shad.program, location, 1, GL_FALSE, glm::value_ptr(value));
+}
+void setUniform(const shader& shad, GLuint location, const texture& value, GLuint textureSlot)
+{
+	glActiveTexture(GL_TEXTURE0 + textureSlot);
+	glBindTexture(GL_TEXTURE_2D, value.handle);
+	glProgramUniform1i(shad.program, location, textureSlot);
 }

@@ -7,6 +7,7 @@
 struct vertex
 {
 	glm::vec4 pos;
+	glm::vec2 uv;
 };
 
 struct geometry
@@ -18,6 +19,12 @@ struct geometry
 struct shader
 {
 	GLuint program;
+};
+
+struct texture
+{
+	GLuint handle;
+	unsigned int width, height, channels;
 };
 
 
@@ -32,6 +39,11 @@ shader makeShader(const char* vertSource,
 
 void freeShader(shader& shad);
 
+texture loadTexture(const char* imgPath);
+texture makeTexture(unsigned width, unsigned height, unsigned channels, const unsigned char* pixels);
+void freeTexture(texture& tex);
+
 void draw(const shader& shader, const geometry& geo);
 
 void setUniform(const shader& shad, GLuint location, const glm::mat4 value);
+void setUniform(const shader& shad, GLuint location, const texture& value, GLuint textureSlot);

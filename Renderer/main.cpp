@@ -23,13 +23,15 @@ int main()
 
 	vertex triVerts[] =
 	{
-		{{ -0.5f, -0.5f, 0.0f, 1.0f }},
-		{{  0.5f, -0.5f, 0.0f, 1.0f }},
-		{{  0.0f,  0.5f, 0.0f, 1.0f }}
+		{ { -0.5f,  1.5f,  0.0f, 1.0f }, { 0, 0 } },
+		{ {  0.5f,  1.5f,  0.0f, 1.0f }, { 1, 0 } },
+		{ {  0.0f,  0.5f,  0.0f, 1.0f }, { 0.5, 1 } },
+		{ {  0.0f, -0.5f, -0.5f, 1.0f }, { 0, 0 } },
+		{ {  0.0f, -0.5f,  0.5f, 1.0f }, { 1, 0 } }
 	};
-	unsigned triIndices[] = { 2,1,0 };
+	unsigned triIndices[] = { 2,1,0, 2,4,3 };
 
-	geometry triangle = makeGeometry(triVerts, 3, triIndices, 3);
+	geometry triangle = makeGeometry(triVerts, 5, triIndices, 6);
 
 	char* basicVert = nullptr;
 	char* basicFrag = nullptr;
@@ -38,11 +40,15 @@ int main()
 
 	shader basicShad = makeShader(basicVert, basicFrag);
 
+	unsigned char whitePixel[] = { 0, 200, 0 };
+	texture whiteTexture = makeTexture(1, 1, 3, whitePixel);
+	texture testImgTexture = loadTexture("Img.png");
+
 	glm::mat4 cam_proj = glm::perspective(glm::radians(45.0f), 800.0f / 400.0f, 0.1f, 1000.0f);
 	glm::mat4 cam_view = glm::lookAt(glm::vec3(0, 0, -10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 triangle_model = glm::identity<glm::mat4>();
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	while (!game.shouldClose())
 	{
@@ -50,11 +56,12 @@ int main()
 
 		game.clear();
 
-		triangle_model = glm::rotate(triangle_model, glm::radians(0.5f), glm::vec3(0.0f, 1.0f, 0.0f));
+		triangle_model = glm::rotate(triangle_model, glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		setUniform(basicShad, 0, cam_proj);
 		setUniform(basicShad, 1, cam_view);
 		setUniform(basicShad, 2, triangle_model);
+		setUniform(basicShad, 3, testImgTexture, 0);
 
 		draw(basicShad, triangle);
 	}
