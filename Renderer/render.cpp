@@ -33,7 +33,9 @@ geometry makeGeometry(vertex* verts, size_t vertCount,
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)16);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)16);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)32);
 
 	//unbind buffers
 	glBindVertexArray(0);
@@ -160,4 +162,8 @@ void setUniform(const shader& shad, GLuint location, const texture& value, GLuin
 	glActiveTexture(GL_TEXTURE0 + textureSlot);
 	glBindTexture(GL_TEXTURE_2D, value.handle);
 	glProgramUniform1i(shad.program, location, textureSlot);
+}
+void setUniform(const shader& shad, GLuint location, const glm::vec3 value)
+{
+	glProgramUniform3fv(shad.program, location, 1, glm::value_ptr(value));
 }

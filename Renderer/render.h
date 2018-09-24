@@ -7,6 +7,7 @@
 struct vertex
 {
 	glm::vec4 pos;
+	glm::vec4 norm;
 	glm::vec2 uv;
 };
 
@@ -47,3 +48,4 @@ void draw(const shader& shader, const geometry& geo);
 
 void setUniform(const shader& shad, GLuint location, const glm::mat4 value);
 void setUniform(const shader& shad, GLuint location, const texture& value, GLuint textureSlot);
+void setUniform(const shader& shad, GLuint location, const glm::vec3 value);
